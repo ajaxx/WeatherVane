@@ -1,0 +1,12 @@
+skinparam classFontSize 18
+skinparam classFontName "Century Gothic"
+skinparam classAttributeFontSize 14
+skinparam classAttributeFontName "Century Gothic"
+skinparam packageStyle Rectangle
+
+skinparam class {
+  BackgroundColor PaleGreen
+  BorderColor SpringGreen
+  roundCorner 20
+  ArrowColor SeaGreen
+}

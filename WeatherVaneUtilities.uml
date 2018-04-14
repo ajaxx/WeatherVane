@@ -1,0 +1,21 @@
+@startuml WeatherVane.Utilities
+
+!include "WeatherVaneStyle.uml"
+
+top to bottom direction
+
+package Rest <<Frame>> {
+  interface IRestClient {
+    + CreateRequest(string resourcePath) : IRestRequest
+  }
+  interface IRestRequest {
+    + AddProperty(string name, string value) : void
+    + ExecuteGetAsync() : JsonObject
+  }
+  class RestClient {
+    + CreateRequest(string resourcePath) : IRestRequest
+  }
+  IRestClient <|-- RestClient
+}
+
+@enduml

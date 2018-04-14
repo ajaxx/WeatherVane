@@ -1,0 +1,98 @@
+@startuml WeatherVane.Views
+
+left to right direction
+top to bottom direction
+
+!include "WeatherVaneStyle.uml"
+
+package View <<Frame>> {
+  class StartPage {
+    + ViewModel : StartPageViewModel <<get>>
+  }
+  class RegionalWeatherPage {
+    + ViewModel : RegionalWeatherPageViewModel <<get>>
+  }
+}
+
+package ViewModel <<Frame>> {
+  class StartPageViewModel {
+    + SearchText : string <<get>>
+    + Location : ILocation <<get>>
+  }
+
+  class RegionalWeatherPageViewModel {
+    + Location : ILocation <<get>>
+    + Forecast : Forecast <<get>>
+    + CurrentConditions : WeatherConditions <<get>>
+  }
+}
+
+StartPage --> StartPageViewModel
+RegionalWeatherPage -right-> RegionalWeatherPageViewModel
+
+
+package Model {
+  interface ILocation {
+    + City : string <<get>>
+    + State : string <<get>>
+    + Country : string <<get>>
+    + ZipCode : string <<get>>
+  }
+
+  class Address {
+    + City : string <<get>> <<set>>
+    + State : string <<get>> <<set>>
+    + Country : string <<get>> <<set>>
+    + ZipCode : string <<get>> <<set>>
+  }
+
+  ILocation <|-- Address
+
+  class Temperature {
+    + Fahrenheit : double <<get>> <<set>>
+    + Celcius : double <<get>> <<set>>
+  }
+
+  class DailyForecast {
+    + Date : DateTime <<get>> <<set>>
+    + Low : Temperature <<get>> <<set>>
+    + High : Temperature <<get>> <<set>>
+    + Conditions : string <<get>> <<set>>
+  }
+
+  DailyForecast -- Temperature
+
+  class Forecast {
+    + IList<DailyForecast> DailyForecast <<get>> <<set>>
+  }
+
+  Forecast *-- DailyForecast
+
+  class Velocity {
+    + Mph : double <<get>> <<set>>
+    + Kph : double <<get>> <<set>>
+  }
+
+  class WeatherConditions {
+    + WindDirection : string <<get>> <<set>>
+    + WindDegrees : double <<get>> <<set>>
+    + WindSpeed : Velocity <<get>> <<set>>
+    + WindGusts : Velocity <<get>> <<set>>
+    + RelativeHumidity : string <<get>> <<set>>
+    + Temperature : Temperature <<get>> <<set>>
+    + WindChill : Temperature <<get>> <<set>>
+    + FeelsLike : Temperature <<get>> <<set>>
+    + HeatIndex : Temperature <<get>> <<set>>
+    + Dewpoint : Temperature <<get>> <<set>>
+  }
+
+  WeatherConditions -- Velocity
+  WeatherConditions -- Temperature
+}
+
+StartPageViewModel --> ILocation
+RegionalWeatherPageViewModel --> ILocation
+RegionalWeatherPageViewModel -down-> Forecast
+RegionalWeatherPageViewModel -left-> WeatherConditions
+
+@enduml

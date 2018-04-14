@@ -1,0 +1,37 @@
+@startuml WeatherVane.Services
+
+!include "WeatherVaneStyle.uml"
+
+left to right direction
+
+package Services <<Frame>> {
+  interface IWeatherService {
+    + GetForecast(ILocation location) : Forecast
+    + GetCurrentConditions(ILocation location) : WeatherConditions
+  }
+  class WeatherServiceWunderground <<Rectangle>> {
+    - {static} ApiKey : string <<get>>
+    - {static} ServiceUri : Uri <<get>>
+    + GetForecast(ILocation location) : Forecast
+    + GetCurrentConditions(ILocation location) : WeatherConditions
+  }
+  IWeatherService <|-- WeatherServiceWunderground
+
+  interface IGeocodingService <<Frame>> {
+    + ResolveLocationFromCoordinates(double longitude, double latitude) : ILocation
+  }
+  class GeocodingServiceBing {
+    - {static} ApiKey : string <<get>>
+    - {static} ServiceUri : Uri <<get>>
+    + ResolveLocationFromCoordinates(double longitude, double latitude) : ILocation
+  }
+  class GeocodingServiceWunderground {
+    - {static} ApiKey : string <<get>>
+    - {static} ServiceUri : Uri <<get>>
+    + ResolveLocationFromCoordinates(double longitude, double latitude) : ILocation
+  }
+  IGeocodingService <|-- GeocodingServiceBing
+  IGeocodingService <|-- GeocodingServiceWunderground
+}
+
+@enduml
