@@ -18,9 +18,9 @@ namespace WeatherVane.Services
 
         private static string ApiKey => "TBD";
 
-        private WeatherForecast CreateForecastFromJson(JsonObject jsonObject)
+        private WeatherForecast CreateForecastFromJson(JsonObject element)
         {
-            var dateEpochString = jsonObject
+            var dateEpochString = element
                 .GetNamedObject("date")
                 .GetNamedString("epoch");
             var dateEpoch = Int64.Parse(dateEpochString);
@@ -28,9 +28,11 @@ namespace WeatherVane.Services
             return new WeatherForecast()
             {
                 Date = DateTimeHelper.FromEpoch(dateEpoch),
-                Low = ParseTemperature(jsonObject.GetNamedObject("low").GetNamedString("fahrenheit")),
-                High = ParseTemperature(jsonObject.GetNamedObject("high").GetNamedString("fahrenheit")),
-                Conditions = jsonObject.GetNamedString("conditions")
+                Low = ParseTemperature(element.GetNamedObject("low").GetNamedString("fahrenheit")),
+                High = ParseTemperature(element.GetNamedObject("high").GetNamedString("fahrenheit")),
+                Conditions = element.GetNamedString("icon"),
+                ConditionsIconUri = element.GetNamedString("icon_url"),
+                ConditionsDescription = element.GetNamedString("conditions")
             };
         }
 
@@ -79,7 +81,10 @@ namespace WeatherVane.Services
                 Dewpoint = new Temperature(observation.GetNamedNumber("dewpoint_f")),
                 //RelativeHumidity = observation.GetNamedString("relative_humidity"),
                 WindChill = ParseTemperature(observation.GetNamedString("windchill_f")),
-                FeelsLike = ParseTemperature(observation.GetNamedString("feelslike_f"))
+                FeelsLike = ParseTemperature(observation.GetNamedString("feelslike_f")),
+                Conditions = observation.GetNamedString("icon"),
+                ConditionsIconUri = observation.GetNamedString("icon_url"),
+                ConditionsDescription = observation.GetNamedString("weather")
             };
         }
     }

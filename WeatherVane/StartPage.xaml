@@ -8,6 +8,9 @@
     mc:Ignorable="d">
 
     <Page.Resources>
+        <SolidColorBrush x:Key="SimpleBlue" Color="#294CA6" />
+        <SolidColorBrush x:Key="SimpleBlueLighter" Color="#006DAB" />
+
         <Style x:Key="AutoSuggestBoxTextBoxStyle" TargetType="AutoSuggestBox">
             <Setter Property="TextBoxStyle">
                 <Setter.Value>
@@ -17,12 +20,133 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style TargetType="Button" x:Key="CustomButtonStyle">
+            <!--
+            <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundBaseLowBrush}" />
+            <Setter Property="Foreground" Value="{ThemeResource SystemControlForegroundBaseHighBrush}" />
+            <Setter Property="BorderBrush" Value="{ThemeResource SystemControlForegroundTransparentBrush}" />
+            <Setter Property="BorderBrush" Value="{ThemeResource SystemControlForegroundTransparentBrush}" />
+            <Setter Property="BorderThickness" Value="{ThemeResource ButtonBorderThemeThickness}" />
+            -->
+
+            <Setter Property="Background" Value="{StaticResource SimpleBlue}" />
+            <Setter Property="Foreground" Value="Snow" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="BorderBrush" Value="Black" />
+            <Setter Property="BorderThickness" Value="1" />
+
+            <Setter Property="Padding" Value="8,4,8,4" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
+            <Setter Property="UseSystemFocusVisuals" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="RootGrid" 
+                          Background="{TemplateBinding Background}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <Storyboard>
+                                            <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
+                                        </Storyboard>
+                                    </VisualState>
+
+                                    <VisualState x:Name="PointerOver">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="ContentPresenter"
+                                                Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Snow" />
+                                            </ObjectAnimationUsingKeyFrames>
+
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="RootGrid"
+                                                Storyboard.TargetProperty="Background">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SimpleBlueLighter}" />
+                                            </ObjectAnimationUsingKeyFrames>
+
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="ContentPresenter"
+                                                Storyboard.TargetProperty="BorderBrush">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Snow" />
+                                            </ObjectAnimationUsingKeyFrames>
+
+                                            <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
+                                        </Storyboard>
+                                    </VisualState>
+
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid"
+                                                     Storyboard.TargetProperty="Background">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlBackgroundBaseMediumLowBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter"
+                                                     Storyboard.TargetProperty="BorderBrush">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightTransparentBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter"
+                                                     Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightBaseHighBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <PointerDownThemeAnimation Storyboard.TargetName="RootGrid" />
+                                        </Storyboard>
+                                    </VisualState>
+                                    
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="RootGrid"
+                                                Storyboard.TargetProperty="Background">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Snow" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="ContentPresenter"
+                                                Storyboard.TargetProperty="Foreground">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Gray" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames
+                                                Storyboard.TargetName="ContentPresenter"
+                                                Storyboard.TargetProperty="BorderBrush">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlDisabledTransparentBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
+                            <ContentPresenter 
+                                x:Name="ContentPresenter"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Content="{TemplateBinding Content}"
+                                ContentTransitions="{TemplateBinding ContentTransitions}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                Padding="{TemplateBinding Padding}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                AutomationProperties.AccessibilityView="Raw"
+                                />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock
@@ -30,8 +154,8 @@
             Margin="0,25,0,25"
             HorizontalAlignment="Center"
             Text="Weather Vane"
-            FontSize="40" 
-            />
+            FontSize="35" 
+            FontFamily="Century Gothic" />
 
         <StackPanel
             Grid.Row="1" 
@@ -72,23 +196,46 @@
                     PlaceholderText=""
                     QueryIcon="Find"
                     QuerySubmitted="OnSearchBoxQuerySubmitted"
+                    ItemsSource="{x:Bind ViewModel.SearchTextSuggestions, Mode=OneWay}"
+                    DisplayMemberPath="DisplayName"
                     Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}"
                     Style="{StaticResource AutoSuggestBoxTextBoxStyle}">
 
                 </AutoSuggestBox>
-                
+
                 <Button 
                     Grid.Row="1" 
                     Grid.Column="1"
-                    FontSize="20"
                     MinWidth="150"
                     HorizontalAlignment="Stretch"
                     Content="Get Weather" 
-                    Foreground="White"
-                    BorderBrush="White"
-                    BorderThickness="1" 
-                    Click="OnGetWeatherRequest" />
+                    Style="{StaticResource CustomButtonStyle}"
+                    Command="{x:Bind GetWeatherCommand}">
+                </Button>
             </Grid>
         </StackPanel>
+        
+        <ListView
+            Grid.Row="2"
+            ItemsSource="{Binding History, Mode=TwoWay}"
+            />
+
+        <Border Grid.Row="3" Padding="5"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Stretch">
+            <Border.Background>
+                <LinearGradientBrush>
+                    <GradientStop Color="#FF175C97" Offset="0"/>
+                    <GradientStop Color="#FF185F9A" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <TextBlock
+                Foreground="Snow"
+                FontSize="20"
+                TextAlignment="Center"
+                Text="Enter a location or select a location from your history">
+            </TextBlock>
+        </Border>
     </Grid>
 </Page>

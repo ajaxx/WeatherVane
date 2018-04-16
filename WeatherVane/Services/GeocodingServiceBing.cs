@@ -13,7 +13,12 @@ namespace WeatherVane.Services
 
         private static string ApiKey => "TBD";
 
-        public async Task<List<string>> QueryLocations(string query)
+        /// <summary>
+        /// Searches for locations that match the query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <returns></returns>
+        public async Task<IList<ILocation>> Search(string query)
         {
             var restClient = new RestClient(GeolocationUri);
             var request = restClient.CreateRequest("/Locations");
@@ -22,7 +27,7 @@ namespace WeatherVane.Services
             request.AddProperty("key", ApiKey);
 
             var result = await request.ExecuteGetAsync();
-            var suggestions = new List<string>();
+            var suggestions = new List<ILocation>();
 
             var resourceSetZero = result["resourceSets"]
                 .GetArray()

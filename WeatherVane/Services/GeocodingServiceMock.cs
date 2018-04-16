@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-
+using Windows.ApplicationModel;
+using Windows.Data.Json;
+using Windows.UI.ViewManagement;
 using WeatherVane.Model;
 
 namespace WeatherVane.Services
@@ -12,6 +17,11 @@ namespace WeatherVane.Services
     /// <seealso cref="WeatherVane.Services.IGeocodingService" />
     public class GeocodingServiceMock : IGeocodingService
     {
+        private const double MaxDistance = 2000.0d;
+
+        /// <summary>
+        /// A fallback location
+        /// </summary>
         private static ILocation DEFAULT_MOCK_LOCATION = new Address() {
             City = "Austin",
             State = "Texas",
@@ -19,19 +29,13 @@ namespace WeatherVane.Services
             ZipCode = "78758"
         };
 
-        private IList<GeocodingZone> _points;
+        private IList<Place> _places;
         private ILocation _defaultLocation;
 
         /// <summary>
-        /// Gets or sets the points.
+        /// Gets the places.  Use the search interface for queries.
         /// </summary>
-        /// <value>
-        /// The points.
-        /// </value>
-        public IList<GeocodingZone> Points {
-            get => _points;
-            set => _points = value;
-        }
+        public IList<Place> Places => _places;
 
         /// <summary>
         /// Gets or sets the default location.
@@ -49,8 +53,8 @@ namespace WeatherVane.Services
         /// </summary>
         public GeocodingServiceMock()
         {
-            _points = new List<GeocodingZone>();
             _defaultLocation = DEFAULT_MOCK_LOCATION;
+            InitializePlaces();
         }
 
         /// <summary>
@@ -59,8 +63,8 @@ namespace WeatherVane.Services
         /// <param name="defaultLocation">The default location.</param>
         public GeocodingServiceMock(ILocation defaultLocation)
         {
-            _points = new List<GeocodingZone>();
             _defaultLocation = defaultLocation;
+            InitializePlaces();
         }
 
         /// <summary>
@@ -70,8 +74,57 @@ namespace WeatherVane.Services
         /// <param name="defaultLocation">The default location.</param>
         public GeocodingServiceMock(IList<GeocodingZone> points, ILocation defaultLocation)
         {
-            _points = points;
             _defaultLocation = defaultLocation;
+            InitializePlaces();
+        }
+
+        /// <summary>
+        /// Initializes the places.
+        /// </summary>
+        public void InitializePlaces()
+        {
+            var mockPath = Path.Combine(
+                Package.Current.InstalledLocation.Path, "MockData", "MockGeocodingData.json");
+            var mockJson = JsonArray.Parse(File.ReadAllText(mockPath));
+
+            _places = mockJson
+                .Select(element => element.GetObject())
+                .Select(element => ElementToPlace(element))
+                .ToList();
+        }
+
+        /// <summary>
+        /// Converts a json element to a "place" object.
+        /// </summary>
+        /// <param name="element">The element.</param>
+        /// <returns></returns>
+        private static Place ElementToPlace(JsonObject element)
+        {
+            return new Place() {
+                City = element.GetNamedString("City"),
+                State = element.GetNamedString("State"),
+                Zipcode = element.GetNamedString("Zipcode"),
+                Longitude = element.GetNamedNumber("Long"),
+                Latitude = element.GetNamedNumber("Lat")
+            };
+        }
+
+        /// <summary>
+        /// Searches for locations that match the query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <returns></returns>
+        public Task<IList<ILocation>> Search(string query)
+        {
+            return Task.Run(
+                () =>
+                {
+                    var searchTerm = query.ToUpperInvariant();
+                    return (IList<ILocation>) _places
+                        .Where(place => place.IsMatch(searchTerm))
+                        .Select(place => place.Location)
+                        .ToList();
+                });
         }
 
         /// <summary>
@@ -83,11 +136,11 @@ namespace WeatherVane.Services
         /// <exception cref="NotImplementedException"></exception>
         public async Task<ILocation> ResolveLocationFromCoordinates(double latitude, double longitude)
         {
-            foreach (var point in _points) {
+            foreach (var point in _places) {
                 var distance = GetHaversineDistance(
                     latitude, point.Latitude,
                     longitude, point.Longitude);
-                if (distance < point.Distance) {
+                if (distance < MaxDistance) {
                     return point.Location;
                 }
             }
@@ -121,6 +174,28 @@ namespace WeatherVane.Services
             public double Longitude;
             public double Distance;
             public ILocation Location;
+        }
+
+        public struct Place
+        {
+            public string City;
+            public string State;
+            public string Zipcode;
+            public double Latitude;
+            public double Longitude;
+
+            public string DisplayName => $"{City}, {State} ({Zipcode})";
+
+            public ILocation Location => new Address() {
+                City = City,
+                State = State,
+                ZipCode = Zipcode
+            };
+
+            public bool IsMatch(string searchTerm)
+            {
+                return DisplayName.Contains(searchTerm);
+            }
         }
     }
 }

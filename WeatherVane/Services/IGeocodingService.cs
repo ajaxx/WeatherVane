@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using WeatherVane.Model;
 
 namespace WeatherVane.Services
@@ -15,5 +16,12 @@ namespace WeatherVane.Services
         /// <param name="longitude">The longitude.</param>
         /// <returns></returns>
         Task<ILocation> ResolveLocationFromCoordinates(double latitude, double longitude);
+
+        /// <summary>
+        /// Searches for locations that match the query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <returns></returns>
+        Task<IList<ILocation>> Search(string query);
     }
 }

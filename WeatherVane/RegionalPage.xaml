@@ -1,0 +1,118 @@
+﻿<Page
+    x:Class="WeatherVane.RegionalPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WeatherVane"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:WeatherVane.Converters"
+    mc:Ignorable="d">
+    
+    <Page.Resources>
+        <converters:TemperatureToStringValueConverter x:Key="TemperatureConverter" />
+    </Page.Resources>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border
+            Grid.Row="0"
+            HorizontalAlignment="Left">
+            <Button 
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="5,0"
+                Style="{StaticResource NavigationBackButtonSmallStyle}"
+                Command="{x:Bind Path=BackCommand}" />
+        </Border>
+
+        <StackPanel
+            Grid.Row="1"
+            Margin="0,20"
+            HorizontalAlignment="Center"
+            Orientation="Horizontal">
+            <TextBlock Text="{x:Bind ViewModel.Location.City}" FontSize="40" />
+            <TextBlock Text=", " FontSize="40" />
+            <TextBlock Text="{x:Bind ViewModel.Location.State}" FontSize="40" />
+        </StackPanel>
+
+        <StackPanel 
+            Grid.Row="2"
+            HorizontalAlignment="Center"
+            Orientation="Horizontal">
+            <TextBlock Text="{x:Bind ViewModel.Location.ZipCode}" FontSize="40" />
+        </StackPanel>
+
+        <TextBlock
+            Grid.Row="3"
+            TextAlignment="Center"
+            Text="{x:Bind Path=ViewModel.Conditions.Temperature, Converter={StaticResource TemperatureConverter}}"
+            FontSize="60" />
+
+        <Image 
+            Grid.Row="4"
+            Width="150"
+            Height="150">
+            <Image.Source>
+                <BitmapImage UriSource="{x:Bind Path=ViewModel.DailyForecast[0].ConditionsIconUri}" />
+            </Image.Source>
+        </Image>
+        
+        <TextBlock
+            Grid.Row="5"
+            Text="{Binding Path=ViewModel.DailyForecast[0].ConditionsDescription}">
+        </TextBlock>
+
+        <StackPanel 
+            Grid.Row="6"
+            HorizontalAlignment="Center"
+            Orientation="Horizontal">
+
+            <TextBlock FontSize="25"
+                       Text="{x:Bind Path=ViewModel.DailyForecast[0].Low, Converter={StaticResource TemperatureConverter}}" />
+            <TextBlock FontSize="25" Text=" / " />
+            <TextBlock FontSize="25"
+                       Text="{x:Bind Path=ViewModel.DailyForecast[0].High, Converter={StaticResource TemperatureConverter}}" />
+        </StackPanel>
+
+        <Grid Grid.Row="7" Margin="0,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <local:DayForecastControl Grid.Row="1" Grid.Column="0"
+                                      Forecast="{x:Bind ViewModel.DailyForecast[0]}" />
+            <local:DayForecastControl Grid.Row="1" Grid.Column="1"
+                                      Forecast="{x:Bind ViewModel.DailyForecast[1]}" />
+            <local:DayForecastControl Grid.Row="1" Grid.Column="2"
+                                      Forecast="{x:Bind ViewModel.DailyForecast[2]}" />
+            <local:DayForecastControl Grid.Row="1" Grid.Column="3"
+                                      Forecast="{x:Bind ViewModel.DailyForecast[3]}" />
+            <local:DayForecastControl Grid.Row="1" Grid.Column="4"
+                                      Forecast="{x:Bind ViewModel.DailyForecast[4]}" />
+            <local:DayForecastControl Grid.Row="1" Grid.Column="5"
+                                      Forecast="{x:Bind ViewModel.DailyForecast[5]}" />
+            <local:DayForecastControl Grid.Row="1" Grid.Column="6"
+                                      Forecast="{x:Bind ViewModel.DailyForecast[6]}" />
+        </Grid>
+    </Grid>
+</Page>

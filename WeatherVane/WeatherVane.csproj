@@ -95,11 +95,15 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\DateTimeToWeekDayValueConverter.cs" />
+    <Compile Include="Converters\TemperatureToStringValueConverter.cs" />
     <Compile Include="DayForecastControl.xaml.cs">
       <DependentUpon>DayForecastControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\Temperature.cs" />
+    <Compile Include="Model\TemperatureUnits.cs" />
     <Compile Include="Model\Velocity.cs" />
+    <Compile Include="ProxyCommand.cs" />
     <Compile Include="Services\GeocodingServiceManager.cs" />
     <Compile Include="Services\GeocodingServiceMock.cs" />
     <Compile Include="Model\Address.cs" />
@@ -118,14 +122,14 @@
       <DependentUpon>StartPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegionalWeatherPage.xaml.cs">
-      <DependentUpon>RegionalWeatherPage.xaml</DependentUpon>
+    <Compile Include="RegionalPage.xaml.cs">
+      <DependentUpon>RegionalPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Rest\RestClient.cs" />
     <Compile Include="Services\IGeocodingService.cs" />
     <Compile Include="Utility\DateTimeHelper.cs" />
     <Compile Include="Utility\ModelExtensions.cs" />
-    <Compile Include="ViewModel\RegionalWeatherViewModel.cs" />
+    <Compile Include="ViewModel\RegionalPageViewModel.cs" />
     <Compile Include="ViewModel\StartPageViewModel.cs" />
     <Compile Include="WebExtensions.cs" />
   </ItemGroup>
@@ -133,9 +137,9 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <Content Include="MockData\MockGeocodingData.json" />
     <Content Include="MockData\MockWeatherForecast.json" />
     <Content Include="MockData\MockWeatherConditions.json" />
+    <Content Include="MockData\MockGeocodingData.json" />
     <None Include="WeatherVane_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -161,7 +165,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="RegionalWeatherPage.xaml">
+    <Page Include="RegionalPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

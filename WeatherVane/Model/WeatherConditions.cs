@@ -79,5 +79,17 @@ namespace WeatherVane.Model
         /// The dewpoint.
         /// </value>
         public Temperature Dewpoint { get; set; }
+        /// <summary>
+        /// Gets or sets the conditions.
+        /// </summary>
+        public string Conditions { get; set; }
+        /// <summary>
+        /// Gets or sets the conditions description.
+        /// </summary>
+        public string ConditionsDescription { get; set; }
+        /// <summary>
+        /// Gets or sets the conditions icon URI.
+        /// </summary>
+        public string ConditionsIconUri { get; set; }
     }
 }

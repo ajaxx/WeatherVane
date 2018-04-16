@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Windows.Devices.Geolocation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -27,18 +29,40 @@ namespace WeatherVane
     public sealed partial class StartPage : Page
     {
         /// <summary>
+        /// Gets the get weather command.
+        /// </summary>
+        /// <value>
+        /// The get weather command.
+        /// </value>
+        public ProxyCommand GetWeatherCommand { get; private set; }
+        
+        /// <summary>
         /// Gets or sets the view model.
         /// </summary>
         /// <value>
         /// The view model.
         /// </value>
-        public StartPageViewModel ViewModel { get; set; } 
+        public StartPageViewModel ViewModel { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StartPage"/> class.
+        /// </summary>
         public StartPage()
         {
             this.InitializeComponent();
+            this.InitializeCommands();
             this.InitializeViewModel();
-            this.InitializeLocation();
+        }
+
+        /// <summary>
+        /// Initializes the commands.
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        private void InitializeCommands()
+        {
+            GetWeatherCommand = new ProxyCommand(
+                param => ViewModel.Location != null,
+                param => Frame.Navigate(typeof(RegionalPage), ViewModel.GetRegionalViewModel()));
         }
 
         /// <summary>
@@ -47,65 +71,19 @@ namespace WeatherVane
         public void InitializeViewModel()
         {
             this.ViewModel = new StartPageViewModel();
+            this.ViewModel.PropertyChanged += (sender, args) => GetWeatherCommand.RaiseCanExecuteChanged();
+            this.DataContext = ViewModel;
         }
 
         /// <summary>
-        /// Initializes the location of the user if they have allowed us to access
-        /// that information.  If we are not allowed, then we will simply rely
-        /// on the user to enter the information.
+        /// Called when [search box query submitted].
         /// </summary>
-        public async void InitializeLocation()
-        {
-            var accessStatus = await Geolocator.RequestAccessAsync();
-            switch (accessStatus) {
-                case GeolocationAccessStatus.Allowed:
-                    var geoLocator = new Geolocator { DesiredAccuracy = PositionAccuracy.Default };
-                    var geoPosition = await geoLocator.GetGeopositionAsync();
-
-                    var geoCodingServiceManager = new GeocodingServiceManager();
-                    var geoCodingService = geoCodingServiceManager.Instance;
-                    var geoCodingResult = await geoCodingService.ResolveLocationFromCoordinates(
-                        geoPosition.Coordinate.Point.Position.Latitude, geoPosition.Coordinate.Point.Position.Longitude);
-                    if (string.IsNullOrEmpty(ViewModel.SearchText)) {
-                        ViewModel.Location = geoCodingResult;
-                        ViewModel.SearchText = geoCodingResult.ZipCode;
-                    }
-                    break;
-                case GeolocationAccessStatus.Denied:
-                case GeolocationAccessStatus.Unspecified:
-                    break;
-            }
-        }
-
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="AutoSuggestBoxQuerySubmittedEventArgs"/> instance containing the event data.</param>
+        /// <exception cref="NotImplementedException"></exception>
         private void OnSearchBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            throw new NotImplementedException();
-        }
-
-        private async void OnGetWeatherRequest(object sender, RoutedEventArgs e)
-        {
-            if (ViewModel.Location != null) {
-                var regionalViewModel = new RegionalWeatherViewModel();
-                regionalViewModel.Location = ViewModel.Location;
-                regionalViewModel.Conditions = await GetCurrentConditions();
-                regionalViewModel.DailyForecast = await GetDailyForecast();
-                this.Frame.Navigate(typeof(RegionalWeatherPage), regionalViewModel);
-            }
-        }
-
-        private Task<WeatherConditions> GetCurrentConditions()
-        {
-            var weatherServiceManager = new WeatherServiceManager();
-            var weatherService = weatherServiceManager.Instance;
-            return weatherService.GetCurrentConditions(ViewModel.Location);
-        }
-
-        private async Task<IList<WeatherForecast>> GetDailyForecast()
-        {
-            var weatherServiceManager = new WeatherServiceManager();
-            var weatherService = weatherServiceManager.Instance;
-            var result = await weatherService.GetForecast(ViewModel.Location);
-            return result.ToList();
+            this.ViewModel.Location = (ILocation) args.ChosenSuggestion;
         }
     }
 }

@@ -5,10 +5,16 @@
     xmlns:local="using:WeatherVane"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:WeatherVane.Converters"
+    DataContext="ViewModel"
     mc:Ignorable="d"
     d:DesignHeight="65"
     d:DesignWidth="50">
 
+    <UserControl.Resources>
+        <converters:DateTimeToWeekDayValueConverter x:Key="WeekDayValueConverter" />
+        <converters:TemperatureToStringValueConverter x:Key="TemperatureConverter" />
+    </UserControl.Resources>
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -16,8 +22,33 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock HorizontalAlignment="Center" Text="Sun" Grid.Column="0" Grid.Row="0" />
-        <TextBlock HorizontalAlignment="Center" Text="Sun" Grid.Column="0" Grid.Row="1" />
-        <TextBlock HorizontalAlignment="Center" Text="31/49" Grid.Column="0" Grid.Row="2" />
+        <TextBlock 
+            Grid.Column="0" Grid.Row="0"
+            HorizontalAlignment="Center" 
+            Text="{x:Bind Path=Forecast.Date, Converter={StaticResource WeekDayValueConverter}}" />
+        <Image Grid.Column="0" Grid.Row="1" Width="24" Height="24">
+            <Image.Source>
+                <BitmapImage UriSource="{x:Bind Path=Forecast.ConditionsIconUri}" />
+            </Image.Source>
+            <ToolTipService.ToolTip>
+                <TextBlock Text="{x:Bind Path=Forecast.ConditionsDescription}" />
+            </ToolTipService.ToolTip>
+        </Image>
+        <StackPanel 
+            Grid.Column="0" Grid.Row="2"
+            Orientation="Horizontal"
+            HorizontalAlignment="Center">
+            <TextBlock 
+                HorizontalAlignment="Center" 
+                Text="{x:Bind Path=Forecast.Low, Converter={StaticResource TemperatureConverter}}"
+                />
+            <TextBlock 
+                HorizontalAlignment="Center" 
+                Text=" / " />
+            <TextBlock 
+                HorizontalAlignment="Center" 
+                Text="{x:Bind Path=Forecast.High, Converter={StaticResource TemperatureConverter}}"
+                />
+        </StackPanel>
     </Grid>
 </UserControl>

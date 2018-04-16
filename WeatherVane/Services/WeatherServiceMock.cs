@@ -55,7 +55,9 @@ namespace WeatherVane.Services
                 Date = DateTimeHelper.FromEpoch(dateEpoch),
                 Low = ParseTemperature(element.GetNamedObject("low").GetNamedString("fahrenheit")),
                 High = ParseTemperature(element.GetNamedObject("high").GetNamedString("fahrenheit")),
-                Conditions = element.GetNamedString("conditions")
+                Conditions = element.GetNamedString("icon"),
+                ConditionsIconUri = element.GetNamedString("icon_url"),
+                ConditionsDescription = element.GetNamedString("conditions")
             };
         }
 
@@ -93,7 +95,13 @@ namespace WeatherVane.Services
                             mockForecastData.GetNamedString("wind_gust_mph")),
                         WindSpeed = new Velocity(
                             mockForecastData.GetNamedNumber("wind_mph")),
-                        RelativeHumidity = mockForecastData.GetNamedString("relative_humidity")
+                        RelativeHumidity = mockForecastData.GetNamedString("relative_humidity"),
+                        Conditions =
+                            mockForecastData.GetNamedString("icon"),
+                        ConditionsIconUri = 
+                            mockForecastData.GetNamedString("icon_url"),
+                        ConditionsDescription = 
+                            mockForecastData.GetNamedString("weather")
                     };
                 });
         }

@@ -24,5 +24,10 @@ namespace WeatherVane.Model
         /// Gets or sets the postal code value.
         /// </summary>
         string ZipCode { get; }
+
+        /// <summary>
+        /// Gets the display name.
+        /// </summary>
+        string DisplayName { get; }
     }
 }

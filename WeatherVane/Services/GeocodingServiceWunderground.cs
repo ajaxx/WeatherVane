@@ -15,6 +15,16 @@ namespace WeatherVane.Services
         private static string ApiKey => "TBD";
 
         /// <summary>
+        /// Searches for locations that match the query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <returns></returns>
+        public async Task<IList<ILocation>> Search(string query)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Resolves a location from coordinates.
         /// </summary>
         /// <param name="latitude">The latitude.</param>
