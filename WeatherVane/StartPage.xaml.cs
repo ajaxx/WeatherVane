@@ -81,9 +81,33 @@ namespace WeatherVane
         /// <param name="sender">The sender.</param>
         /// <param name="args">The <see cref="AutoSuggestBoxQuerySubmittedEventArgs"/> instance containing the event data.</param>
         /// <exception cref="NotImplementedException"></exception>
-        private void OnSearchBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        private async void OnSearchBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            this.ViewModel.Location = (ILocation) args.ChosenSuggestion;
+            var location = (ILocation) args.ChosenSuggestion;
+            if (location == null) {
+                // The user could just hit enter - if this happens, we will get
+                // no location, but valid query text.  Attempt to lookup the location
+                // from the query text.
+                var result = await ViewModel.GeocodingService.Search(args.QueryText);
+                if (result.Count == 0) {
+                    return;
+                }
+
+                // We're left with multiple results all of which could match.  We
+                // will choose the first item that matches.
+                location = result[0];
+            }
+
+            if (location != null) {
+                // the user chose an item from the autosuggest box - this is the
+                // simplest use case to complete.
+                this.ViewModel.Location = location;
+                // still not sure why the view is showing a version of the object
+                // other than the display name...
+                this.ViewModel.SuspendUpdateSearch = true;
+                this.ViewModel.SearchText = location.DisplayName;
+                this.ViewModel.SuspendUpdateSearch = false;
+            }
         }
     }
 }
