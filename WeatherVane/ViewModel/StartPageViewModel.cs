@@ -23,11 +23,6 @@ namespace WeatherVane.ViewModel
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        /// Allows suspension of the update search data
-        /// </summary>
-        private bool _suspendUpdateSearch = false;
-
-        /// <summary>
         /// The search text
         /// </summary>
         private string _searchText;
@@ -62,6 +57,12 @@ namespace WeatherVane.ViewModel
         public ObservableCollection<ILocation> SearchTextSuggestions { get; private set; }
 
         /// <summary>
+        /// Gets the search history.  The search history contains all locations that
+        /// have been selected by the user.
+        /// </summary>
+        public ObservableCollection<ILocation> LocationHistory { get; private set; }
+
+        /// <summary>
         /// Gets or sets the search text.
         /// </summary>
         /// <value>
@@ -73,8 +74,6 @@ namespace WeatherVane.ViewModel
             set
             {
                 _searchText = value;
-                if (_suspendUpdateSearch == false)
-                    UpdateSearchSuggestions();
                 OnPropertyChanged();
             }
         }
@@ -91,18 +90,25 @@ namespace WeatherVane.ViewModel
             {
                 _location = value;
                 OnPropertyChanged();
-            }
-        }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether search updating is suspended.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [suspend update search]; otherwise, <c>false</c>.
-        /// </value>
-        public bool SuspendUpdateSearch {
-            get => _suspendUpdateSearch;
-            set => _suspendUpdateSearch = value;
+                if (value != null) {
+                    if (LocationHistory.Count == 0) {
+                        LocationHistory.Insert(0, value);
+                    }
+                    else {
+                        int index = LocationHistory.IndexOf(value);
+                        if (index == -1) {
+                            LocationHistory.Insert(0, value);
+                            while (LocationHistory.Count > 10) {
+                                LocationHistory.RemoveAt(LocationHistory.Count - 1);
+                            }
+                        }
+                        else if (index != 0) {
+                            LocationHistory.Move(index, 0);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -113,6 +119,7 @@ namespace WeatherVane.ViewModel
             InitializeGeocodingService();
             InitializeWeatherService();
             InitializeSuggestionCollection();
+            InitializeLocationHistory();
             InitializeLocation();
         }
 
@@ -132,6 +139,15 @@ namespace WeatherVane.ViewModel
         private void InitializeSuggestionCollection()
         {
             SearchTextSuggestions = new ObservableCollection<ILocation>();
+        }
+
+        /// <summary>
+        /// Initializes the location history.
+        /// </summary>
+        private void InitializeLocationHistory()
+        {
+            var locationHistoryManager = new LocationHistoryManager();
+            LocationHistory = locationHistoryManager.Instance.Locations;
         }
 
         /// <summary>
@@ -158,9 +174,7 @@ namespace WeatherVane.ViewModel
                     if (string.IsNullOrEmpty(SearchText))
                     {
                         Location = geoCodingResult;
-                        SuspendUpdateSearch = true;
                         SearchText = geoCodingResult.DisplayName;
-                        SuspendUpdateSearch = false;
                     }
 
                     break;
@@ -182,12 +196,20 @@ namespace WeatherVane.ViewModel
         /// <summary>
         /// Updates the search suggestions.
         /// </summary>
-        private async void UpdateSearchSuggestions()
+        public async void UpdateSearchSuggestions()
         {
-            var searchResults = await GeocodingService.Search(SearchText);
-            
+            UpdateSearchSuggestions(await GeocodingService.Search(SearchText));
+        }
+
+        /// <summary>
+        /// Updates the search suggestions with a specific set of locations.
+        /// </summary>
+        /// <param name="locations">The locations.</param>
+        public void UpdateSearchSuggestions(IList<ILocation> locations)
+        {
             SearchTextSuggestions.Clear();
-            foreach (var searchResult in searchResults.Take(10)) {
+            foreach (var searchResult in locations.Take(10))
+            {
                 SearchTextSuggestions.Add(searchResult);
             }
         }

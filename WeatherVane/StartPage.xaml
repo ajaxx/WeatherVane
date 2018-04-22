@@ -197,8 +197,9 @@
                     QueryIcon="Find"
                     QuerySubmitted="OnSearchBoxQuerySubmitted"
                     ItemsSource="{x:Bind ViewModel.SearchTextSuggestions, Mode=OneWay}"
+                    TextChanged="OnSearchTextChanged"
                     DisplayMemberPath="DisplayName"
-                    Text="{x:Bind ViewModel.SearchText, Mode=TwoWay}"
+                    Text="{x:Bind Path=ViewModel.SearchText, Mode=TwoWay}"
                     Style="{StaticResource AutoSuggestBoxTextBoxStyle}">
 
                 </AutoSuggestBox>
@@ -210,14 +211,16 @@
                     HorizontalAlignment="Stretch"
                     Content="Get Weather" 
                     Style="{StaticResource CustomButtonStyle}"
-                    Command="{x:Bind GetWeatherCommand}">
+                    Command="{x:Bind Path=GetWeatherCommand}">
                 </Button>
             </Grid>
         </StackPanel>
         
         <ListView
             Grid.Row="2"
-            ItemsSource="{Binding History, Mode=TwoWay}"
+            ItemsSource="{x:Bind Path=ViewModel.LocationHistory, Mode=OneWay}"
+            SelectionMode="Single"
+            SelectionChanged="OnHistoricLocationSelected"
             />
 
         <Border Grid.Row="3" Padding="5"

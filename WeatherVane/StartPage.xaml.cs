@@ -1,25 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using Windows.Devices.Geolocation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Core;
-using Windows.UI.ViewManagement;
-using Windows.UI.Xaml;
+using System.ComponentModel;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 using WeatherVane.Model;
-using WeatherVane.Services;
 using WeatherVane.ViewModel;
-
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace WeatherVane
 {
@@ -71,8 +54,18 @@ namespace WeatherVane
         public void InitializeViewModel()
         {
             this.ViewModel = new StartPageViewModel();
-            this.ViewModel.PropertyChanged += (sender, args) => GetWeatherCommand.RaiseCanExecuteChanged();
+            this.ViewModel.PropertyChanged += UpdateWeatherCommand;
             this.DataContext = ViewModel;
+        }
+
+        /// <summary>
+        /// Updates the weather command.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
+        private void UpdateWeatherCommand(object sender, PropertyChangedEventArgs e)
+        {
+            GetWeatherCommand.RaiseCanExecuteChanged();
         }
 
         /// <summary>
@@ -80,7 +73,6 @@ namespace WeatherVane
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="args">The <see cref="AutoSuggestBoxQuerySubmittedEventArgs"/> instance containing the event data.</param>
-        /// <exception cref="NotImplementedException"></exception>
         private async void OnSearchBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             var location = (ILocation) args.ChosenSuggestion;
@@ -90,23 +82,59 @@ namespace WeatherVane
                 // from the query text.
                 var result = await ViewModel.GeocodingService.Search(args.QueryText);
                 if (result.Count == 0) {
+                    ViewModel.Location = null;
+                    return;
+                } else if (result.Count == 1) {
+                    // There was one and only one result to this search.  In that case,
+                    // we can use the result as the location.
+                    location = result[0];
+                }
+                else {
+                    // We have multiple locations.  In this case, we don't want to "select"
+                    // a location, but rather this information needs to be used to populate
+                    // the suggestion box.
+                    ViewModel.Location = null;
+                    ViewModel.UpdateSearchSuggestions(result);
                     return;
                 }
-
-                // We're left with multiple results all of which could match.  We
-                // will choose the first item that matches.
-                location = result[0];
             }
 
             if (location != null) {
                 // the user chose an item from the autosuggest box - this is the
                 // simplest use case to complete.
                 this.ViewModel.Location = location;
-                // still not sure why the view is showing a version of the object
-                // other than the display name...
-                this.ViewModel.SuspendUpdateSearch = true;
                 this.ViewModel.SearchText = location.DisplayName;
-                this.ViewModel.SuspendUpdateSearch = false;
+            }
+        }
+
+        /// <summary>
+        /// Occurs when the text is changed.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="AutoSuggestBoxTextChangedEventArgs"/> instance containing the event data.</param>
+        private void OnSearchTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            switch (args.Reason) {
+                case AutoSuggestionBoxTextChangeReason.UserInput:
+                    ViewModel.UpdateSearchSuggestions();
+                    break;
+                case AutoSuggestionBoxTextChangeReason.ProgrammaticChange:
+                case AutoSuggestionBoxTextChangeReason.SuggestionChosen:
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Occurs when a historic location is selected.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="SelectionChangedEventArgs"/> instance containing the event data.</param>
+        private void OnHistoricLocationSelected(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count != 0) {
+                var location = (ILocation) e.AddedItems[0];
+                ViewModel.Location = location;
+                ViewModel.SearchText = location.DisplayName;
             }
         }
     }

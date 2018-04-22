@@ -113,6 +113,9 @@
     <Compile Include="Services\GeocodingServiceBing.cs" />
     <Compile Include="Rest\IRestClient.cs" />
     <Compile Include="Rest\IRestRequest.cs" />
+    <Compile Include="Services\ILocationHistory.cs" />
+    <Compile Include="Services\LocationHistoryManager.cs" />
+    <Compile Include="Services\LocationHistoryInMemory.cs" />
     <Compile Include="Services\WeatherServiceManager.cs" />
     <Compile Include="Services\WeatherServiceMock.cs" />
     <Compile Include="Services\WeatherServiceWunderground.cs" />
@@ -131,7 +134,7 @@
     <Compile Include="Utility\ModelExtensions.cs" />
     <Compile Include="ViewModel\RegionalPageViewModel.cs" />
     <Compile Include="ViewModel\StartPageViewModel.cs" />
-    <Compile Include="WebExtensions.cs" />
+    <Compile Include="Utility\WebExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
